@@ -1,0 +1,5 @@
+{
+  "name": "TrainLocal Admin Console",
+  "description": "Internal tool for TrainLocal team to generate social media assets, manage content schedules, and preview grid layouts.",
+  "requestFramePermissions": []
+}
