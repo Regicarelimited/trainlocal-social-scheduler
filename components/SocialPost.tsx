@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
-  Users, CheckCircle2, MapPin, Star, Share2, PoundSterling, Layout, 
-  Award, BarChart2, Type, Trophy, Dumbbell, Smartphone, Activity, Clock
+  CheckCircle2, MapPin, Star, Share2, PoundSterling, 
+  Award, Type, Trophy, Smartphone, Activity, Clock,
+  Quote, TrendingUp
 } from 'lucide-react';
 import { VIBES } from '../constants';
 import { PostData, VibeType } from '../types';
@@ -14,7 +15,8 @@ interface SocialPostProps {
 }
 
 // Background Component that handles images vs gradients
-const VibeBackground = ({ theme, customImage }: { theme: any, customImage?: string }) => (
+// UPDATED: Now respects theme.colors.overlay to allow specific tinting (e.g. black/60) rather than generic opacity
+const VibeBackground = ({ theme, customImage, opacity = 0.9 }: { theme: any, customImage?: string, opacity?: number }) => (
   <>
     {customImage || theme.backgroundImage ? (
       <>
@@ -22,31 +24,20 @@ const VibeBackground = ({ theme, customImage }: { theme: any, customImage?: stri
           className="absolute inset-0 bg-cover bg-center z-0" 
           style={{ backgroundImage: `url(${customImage || theme.backgroundImage})` }}
         />
-        <div className={`absolute inset-0 z-0 ${theme.colors.overlay}`} />
+        {/* Use the specific overlay class if available, otherwise fallback to bg color with standard opacity */}
+        <div 
+            className={`absolute inset-0 z-0 ${theme.colors.overlay || theme.colors.bg}`} 
+            style={theme.colors.overlay ? {} : { opacity: opacity }} 
+        />
       </>
     ) : (
-      <div className={`absolute inset-0 bg-gradient-to-br ${theme.colors.gradient} z-0`} />
+      <div className={`absolute inset-0 ${theme.colors.bg} z-0`} />
     )}
   </>
 );
 
-// Background Pattern Component
-const PatternOverlay = ({ opacity = 0.1 }) => (
-  <div className="absolute inset-0 pointer-events-none z-0 mix-blend-overlay" style={{ opacity }}>
-    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-          <path d="M0 40L40 0H20L0 20M40 40V20L20 40" stroke="currentColor" strokeWidth="1" fill="none"/>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#grid)" />
-    </svg>
-  </div>
-);
-
-// Enhanced Brand Logo
 const BrandLogo = ({ color = "currentColor", fill = "none" }) => (
-  <div className={`absolute top-6 left-6 z-20 w-12 h-12`}>
+  <div className={`absolute top-8 left-8 z-20 w-10 h-10`}>
      <svg viewBox="0 0 100 130" className="w-full h-full drop-shadow-lg" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
         <linearGradient id="lGrad" x1="0" y1="0" x2="1" y2="1">
@@ -66,463 +57,466 @@ export const SocialPost: React.FC<SocialPostProps> = ({ template, data, vibe, ty
   const theme = VIBES.find(v => v.id === vibe) || VIBES[0];
   const isStory = type === 'story';
   
-  // --- GROWTH ---
-  if (template === 'newProfile') {
-    return (
-      <div className={`h-full w-full relative flex flex-col p-8 overflow-hidden ${theme.colors.bg}`}>
-        <VibeBackground theme={theme} customImage={data.customBackground} />
-        {!(data.customBackground || theme.backgroundImage) && <PatternOverlay />}
-        <BrandLogo fill={theme.colors.text === 'text-white' ? 'white' : 'color'} />
-        
-        <div className="flex-1 flex flex-col items-center justify-center relative z-10 text-center">
-          <div className={`bg-white p-2 rounded-full mb-6 shadow-xl animate-fade-in`}>
-             <div className={`w-28 h-28 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 overflow-hidden`}>
-                {data.userImage ? (
-                  <img src={data.userImage} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <Users size={48} />
-                )}
-             </div>
-          </div>
-          <div className={`${theme.colors.accent} font-bold text-sm uppercase tracking-[0.2em] mb-2 bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full inline-block`}>New Talent</div>
-          <h2 className={`${theme.colors.text} ${theme.font.heading} text-5xl font-black mb-6 leading-tight drop-shadow-lg`}>{data.ptName || "NAME"}</h2>
-          <div className="flex flex-wrap gap-2 justify-center">
-             <span className={`${theme.colors.secondary} ${theme.colors.text} px-4 py-1.5 rounded-full text-xs font-bold uppercase shadow-lg`}>{data.location || "Location"}</span>
-             <span className={`bg-white text-slate-900 px-4 py-1.5 rounded-full text-xs font-bold uppercase shadow-lg`}>{data.specialism || "Specialism"}</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const headingFont = "font-poppins";
+  const bodyFont = "font-lato";
+  const uiFont = "font-opensans";
 
-  if (template === 'profileClaim') {
-    return (
-      <div className={`h-full w-full bg-white relative flex flex-col overflow-hidden`}>
-         <div className={`h-[45%] relative rounded-b-[3rem] overflow-hidden`}>
-            <VibeBackground theme={theme} customImage={data.customBackground} />
-         </div>
-         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-8">
-            <div className="bg-white p-8 rounded-3xl shadow-2xl w-full text-center border border-slate-100 relative mt-12">
-               <div className={`absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 ${theme.colors.bg} rounded-full border-4 border-white flex items-center justify-center ${theme.colors.text} shadow-lg overflow-hidden`}>
-                 {data.userImage ? (
-                   <img src={data.userImage} alt="Profile" className="w-full h-full object-cover" />
-                 ) : (data.customBackground || theme.backgroundImage) ? (
-                   <div className="w-full h-full bg-cover bg-center" style={{backgroundImage: `url(${data.customBackground || theme.backgroundImage})`}}></div>
-                 ) : (
-                   <CheckCircle2 size={36}/>
-                 )}
-               </div>
-               <div className="mt-8">
-                    <h3 className={`text-slate-400 font-bold uppercase tracking-widest text-xs mb-1`}>Official</h3>
-                    <h2 className={`text-slate-900 ${theme.font.heading} text-2xl font-black mb-4`}>Profile Verified</h2>
-                    <div className="w-16 h-1 bg-gradient-to-r from-orange-400 to-pink-500 mx-auto mb-4 rounded-full"></div>
-                    <p className={`${theme.colors.accent.replace('text-','text-')} text-xl font-bold`}>{data.ptName || "PT Name"}</p>
-               </div>
+  switch (template) {
+    case 'newProfile':
+        return (
+            <div className={`h-full w-full relative flex flex-col items-center justify-center p-8 overflow-hidden`}>
+                <VibeBackground theme={theme} customImage={data.customBackground} />
+                <BrandLogo fill="white" />
+                
+                <div className="relative z-10 w-full max-w-sm bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 flex flex-col items-center text-center shadow-2xl">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg transform -rotate-2">
+                        Just Landed
+                    </div>
+                    
+                    <div className={`w-32 h-32 rounded-full p-1 bg-gradient-to-tr ${theme.colors.gradient} mb-6`}>
+                        <div className="w-full h-full rounded-full border-4 border-white overflow-hidden bg-slate-200">
+                            {data.userImage && <img src={data.userImage} className="w-full h-full object-cover" />}
+                        </div>
+                    </div>
+                    
+                    <h2 className={`text-white text-3xl font-bold mb-1 ${headingFont}`}>{data.ptName || "New Trainer"}</h2>
+                    <p className={`text-white/80 text-sm font-medium mb-6 ${bodyFont}`}>{data.location || "Location"} • {data.specialism}</p>
+                    
+                    <div className={`w-full py-3 rounded-xl bg-white text-slate-900 font-bold text-xs uppercase tracking-wider ${uiFont}`}>
+                        View Profile
+                    </div>
+                </div>
             </div>
-         </div>
-         <BrandLogo />
-      </div>
-    );
-  }
+        );
 
-  if (template === 'newLocation') {
-    return (
-      <div className={`h-full w-full ${theme.colors.secondary} relative flex flex-col items-center justify-center p-8`}>
-        <VibeBackground theme={theme} customImage={data.customBackground} />
-        <BrandLogo fill={theme.colors.text === 'text-white' ? 'white' : 'color'} />
-        <div className={`relative z-10 border-4 ${theme.colors.text} p-8 text-center backdrop-blur-md bg-white/10 shadow-2xl`}>
-            <MapPin size={48} className={`${theme.colors.accent} mx-auto mb-4 drop-shadow-md`} />
-            <h1 className={`${theme.colors.text} ${theme.font.heading} text-5xl font-black mb-2 uppercase drop-shadow-lg`}>{data.locationName || "CITY"}</h1>
-            <div className={`${theme.colors.bg} ${theme.colors.text} inline-block px-4 py-2 font-bold text-sm tracking-widest shadow-lg border border-white/20`}>
-                NOW LIVE • {data.gymCount || "0"} GYMS
-            </div>
-        </div>
-      </div>
-    );
-  }
+    case 'profileClaim':
+        return (
+            <div className="h-full w-full relative flex flex-col items-center justify-center p-8 bg-white">
+                <div className={`absolute top-0 w-full h-1/2 ${theme.colors.bg} rounded-b-[4rem] z-0`}></div>
+                
+                <div className={`absolute top-6 left-6 z-10 text-white`}>
+                     <div className="flex items-center gap-2">
+                         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs">TL</div>
+                         <span className={`font-bold text-sm tracking-wide ${headingFont}`}>Official</span>
+                     </div>
+                </div>
 
-  // --- SOCIAL PROOF ---
-  if (template === 'newReview') {
-    return (
-      <div className={`h-full w-full ${theme.colors.bg} p-8 flex flex-col justify-center relative overflow-hidden`}>
-         <VibeBackground theme={theme} customImage={data.customBackground} />
-         <div className={`${theme.colors.text} opacity-10 absolute top-4 right-4`}>
-             <Star size={120} />
-         </div>
-         <div className="relative z-10">
-            <div className="flex gap-1 mb-8">
-                {[1,2,3,4,5].map(i => <Star key={i} className={`${theme.colors.accent} fill-current drop-shadow-md`} size={28} />)}
+                <div className="relative z-10 bg-white p-8 rounded-2xl shadow-2xl w-full text-center border border-slate-100 mt-12">
+                    <div className={`w-28 h-28 rounded-full mx-auto -mt-20 mb-4 border-8 border-white flex items-center justify-center text-white shadow-lg bg-gradient-to-br ${theme.colors.gradient} relative overflow-hidden`}>
+                        {data.userImage ? (
+                            <img src={data.userImage} className="w-full h-full object-cover" />
+                        ) : (
+                            <CheckCircle2 size={32} />
+                        )}
+                        <div className="absolute bottom-0 right-0 p-1 bg-white rounded-full">
+                           <CheckCircle2 size={20} className="text-emerald-500 fill-emerald-100" />
+                        </div>
+                    </div>
+                    <h3 className={`text-slate-400 text-xs font-bold uppercase tracking-widest mb-2 ${uiFont}`}>Account Verified</h3>
+                    <h2 className={`text-slate-900 text-3xl font-black mb-4 ${headingFont}`}>{data.ptName}</h2>
+                    <div className={`inline-block px-4 py-1.5 rounded bg-slate-100 text-slate-600 font-bold text-xs ${uiFont}`}>
+                        {data.location}
+                    </div>
+                </div>
             </div>
-            <h2 className={`${theme.colors.text} ${theme.font.heading} text-4xl font-bold leading-tight mb-8 drop-shadow-md`}>
-              "{data.reviewText || "Absolutely incredible results."}"
-            </h2>
-            <div className="flex items-center gap-4 border-t border-white/20 pt-6">
-                <div className={`w-14 h-14 rounded-full ${theme.colors.secondary} flex items-center justify-center ${theme.colors.text} font-bold text-2xl shadow-lg border-2 border-white/20 overflow-hidden`}>
+        );
+
+    case 'newLocation':
+        return (
+            <div className={`h-full w-full relative flex flex-col justify-end p-8 overflow-hidden`}>
+                <VibeBackground theme={theme} customImage={data.customBackground} opacity={0.8} />
+                
+                <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                    <MapPin size={300} strokeWidth={0.5} className="text-white" />
+                </div>
+
+                <div className="relative z-10 border-l-4 border-white pl-6 mb-8">
+                    <div className={`text-white/80 text-sm font-bold uppercase tracking-widest mb-1 ${uiFont}`}>Expansion</div>
+                    <h1 className={`text-white text-5xl font-black mb-2 uppercase ${headingFont}`}>{data.locationName}</h1>
+                    <div className="flex items-center gap-2 text-white font-medium">
+                        <div className={`bg-white text-slate-900 px-2 py-0.5 rounded text-xs font-bold ${uiFont}`}>LIVE</div>
+                        <span className={bodyFont}>{data.gymCount} Gyms Added</span>
+                    </div>
+                </div>
+            </div>
+        );
+
+    case 'newReview':
+        return (
+            <div className={`h-full w-full relative flex flex-col p-8 justify-center ${theme.colors.bg}`}>
+                <VibeBackground theme={theme} customImage={data.customBackground} opacity={0.95} />
+                <Quote className="absolute top-12 left-8 text-white/20" size={80} />
+                
+                <div className="relative z-10 mt-8">
+                    <div className="flex gap-1 mb-6">
+                       {[1,2,3,4,5].map(i => <Star key={i} className={`fill-current text-yellow-400`} size={18} />)}
+                    </div>
+                    <h2 className={`text-white text-3xl leading-snug italic font-light mb-8 ${bodyFont}`}>
+                       "{data.reviewText}"
+                    </h2>
+                    <div className="flex items-center gap-4 border-t border-white/10 pt-6">
+                        <div className="w-14 h-14 rounded-full bg-slate-700 overflow-hidden border-2 border-white/20">
+                             {data.userImage && <img src={data.userImage} className="w-full h-full object-cover" />}
+                        </div>
+                        <div>
+                            <p className={`text-white font-bold text-lg ${headingFont}`}>{data.ptName}</p>
+                            <p className={`text-white/50 text-[10px] uppercase tracking-wider ${uiFont}`}>Top Rated Trainer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+    case 'mostReviews':
+        return (
+            <div className="h-full w-full relative flex flex-col items-center pt-16 bg-white overflow-hidden">
+                <div className={`absolute top-0 inset-x-0 h-40 ${theme.colors.bg}`}></div>
+                <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-black/20 to-transparent"></div>
+                
+                <div className="relative z-10 text-center">
+                    <h3 className={`text-white/80 text-xs font-bold uppercase tracking-widest mb-6 ${uiFont}`}>Community Favorite</h3>
+                    <div className="relative w-40 h-40 mx-auto mb-6">
+                         <div className={`absolute inset-0 rounded-full animate-spin-slow border-2 border-dashed border-slate-300 opacity-50`}></div>
+                         <div className="absolute inset-2 rounded-full overflow-hidden border-4 border-white shadow-xl bg-slate-200">
+                             {data.userImage && <img src={data.userImage} className="w-full h-full object-cover" />}
+                         </div>
+                         <div className={`absolute -bottom-2 -right-2 bg-gradient-to-r ${theme.colors.gradient} text-white w-14 h-14 rounded-full flex flex-col items-center justify-center shadow-lg border-2 border-white`}>
+                             <span className={`text-lg font-bold leading-none ${headingFont}`}>{data.reviewCount}</span>
+                             <span className="text-[8px] font-bold uppercase">Reviews</span>
+                         </div>
+                    </div>
+                    <h2 className={`text-slate-900 text-3xl font-black ${headingFont}`}>{data.ptName}</h2>
+                    <p className={`text-slate-400 text-sm font-medium ${bodyFont}`}>Most Reviewed This Month</p>
+                </div>
+            </div>
+        );
+
+    case 'mostReferrals':
+        return (
+            <div className={`h-full w-full relative flex flex-col p-8 justify-between ${theme.colors.bg}`}>
+                <div className="flex justify-between items-start">
+                    <Share2 className="text-white/80" size={32} />
+                    <div className={`text-white/60 text-xs font-bold uppercase tracking-widest border border-white/20 px-2 py-1 rounded ${uiFont}`}>Connector</div>
+                </div>
+
+                <div className="text-center relative">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-white/10 rounded-full"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-white/20 rounded-full"></div>
+                    
+                    <h1 className={`text-white text-8xl font-black mb-2 ${headingFont}`}>{data.referralCount}</h1>
+                    <p className={`text-white/80 text-lg font-light ${bodyFont}`}>Referrals Made</p>
+                </div>
+
+                <div className="text-center flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full border-4 border-white mb-3 overflow-hidden shadow-lg">
+                        {data.userImage && <img src={data.userImage} className="w-full h-full object-cover" />}
+                    </div>
+                    <p className={`text-white font-bold text-xl ${headingFont}`}>{data.ptName}</p>
+                </div>
+            </div>
+        );
+
+    case 'platformEarnings':
+        return (
+            <div className="h-full w-full relative bg-slate-50 flex flex-col p-8">
+                 <div className="flex-1 flex flex-col justify-center">
+                     <p className={`text-slate-400 font-bold text-xs uppercase tracking-widest mb-2 ${uiFont}`}>Total Revenue</p>
+                     <h2 className={`text-slate-900 text-6xl font-black tracking-tight mb-4 ${headingFont}`}>{data.amount}</h2>
+                     <div className={`inline-flex items-center gap-2 bg-slate-200 ${theme.colors.text} px-3 py-1 rounded-full text-xs font-bold self-start ${uiFont}`}>
+                        <TrendingUp size={14} /> +12.5% vs last month
+                     </div>
+                 </div>
+                 
+                 <div className="h-32 flex items-end gap-2 mt-auto opacity-80">
+                    <div className="flex-1 bg-slate-200 rounded-t h-[40%]"></div>
+                    <div className="flex-1 bg-slate-200 rounded-t h-[60%]"></div>
+                    <div className="flex-1 bg-slate-200 rounded-t h-[30%]"></div>
+                    <div className="flex-1 bg-slate-200 rounded-t h-[50%]"></div>
+                    <div className={`flex-1 rounded-t h-[80%] bg-gradient-to-t ${theme.colors.gradient}`}></div>
+                 </div>
+                 <p className={`text-center text-slate-400 text-xs font-bold mt-4 uppercase ${uiFont}`}>{data.period}</p>
+            </div>
+        );
+
+    case 'locationEarnings':
+        return (
+            <div className={`h-full w-full relative flex flex-col p-8 ${theme.colors.bg}`}>
+                <BrandLogo fill="white" />
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <PoundSterling size={120} className="text-white" />
+                </div>
+                
+                <div className="mt-auto">
+                    <div className="flex items-center gap-2 text-white/60 mb-2">
+                        <MapPin size={16} />
+                        <span className={`text-xs font-bold uppercase tracking-widest ${uiFont}`}>{data.locationName}</span>
+                    </div>
+                    <h1 className={`text-white text-6xl font-black mb-4 ${headingFont}`}>{data.amount}</h1>
+                    <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden">
+                        <div className={`h-full w-3/4 bg-gradient-to-r ${theme.colors.gradient}`}></div>
+                    </div>
+                    <p className={`text-white/60 text-xs font-bold mt-2 text-right ${uiFont}`}>Top Performing Area</p>
+                </div>
+            </div>
+        );
+
+    case 'caseStudy':
+        return (
+            <div className="h-full w-full relative flex flex-col bg-white">
+                <div className="h-3/5 w-full relative overflow-hidden bg-slate-200">
                     {data.userImage ? (
-                      <img src={data.userImage} alt="User" className="w-full h-full object-cover" />
+                        <img src={data.userImage} className="w-full h-full object-cover grayscale contrast-125" />
                     ) : (
-                      (data.ptName || "T").charAt(0)
+                        <div className="w-full h-full bg-slate-300"></div>
+                    )}
+                    <div className={`absolute bottom-0 left-0 bg-white px-4 py-2 font-black text-xl uppercase ${headingFont}`}>Transformation</div>
+                </div>
+                <div className="flex-1 p-8 flex flex-col justify-center">
+                    <h2 className={`text-slate-900 font-bold text-lg mb-2 ${headingFont}`}>{data.ptName}'s Client</h2>
+                    <p className={`text-slate-600 text-sm leading-relaxed mb-4 ${bodyFont}`}>{data.result}</p>
+                    <div className={`flex items-center gap-2 ${theme.colors.text} text-xs font-bold uppercase tracking-wide ${uiFont}`}>
+                        <Clock size={14} /> {data.timeframe} Duration
+                    </div>
+                </div>
+            </div>
+        );
+
+    case 'monthlyStar':
+        return (
+            <div className={`h-full w-full relative flex flex-col items-center justify-center p-8 text-center`}>
+                <VibeBackground theme={theme} customImage={data.customBackground} />
+                
+                <div className="relative z-10 border-2 border-white/30 p-8 bg-black/40 backdrop-blur-sm rounded-lg">
+                    <Award size={48} className="text-yellow-400 mx-auto mb-4 drop-shadow-md" />
+                    <h3 className={`text-white text-xs font-bold uppercase tracking-[0.3em] mb-4 ${uiFont}`}>Trainer of the Month</h3>
+                    <h1 className={`text-white text-4xl font-black uppercase mb-6 drop-shadow-xl ${headingFont}`}>{data.ptName}</h1>
+                    <div className="w-12 h-1 bg-yellow-400 mx-auto mb-6"></div>
+                    <p className={`text-white/90 text-sm font-medium italic ${bodyFont}`}>"{data.reason}"</p>
+                    {data.userImage && (
+                        <div className="w-20 h-20 rounded-full border-4 border-white mx-auto mt-6 overflow-hidden shadow-lg">
+                             <img src={data.userImage} className="w-full h-full object-cover" />
+                        </div>
                     )}
                 </div>
-                <div>
-                    <p className={`${theme.colors.text} font-bold text-lg drop-shadow-sm`}>{data.ptName || "Trainer Name"}</p>
-                    <p className={`${theme.colors.accent} text-xs uppercase tracking-wider font-bold`}>Verified Trainer</p>
+            </div>
+        );
+
+    case 'statPTs':
+        return (
+            <div className={`h-full w-full relative flex items-center justify-center ${theme.colors.bg}`}>
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] opacity-5 bg-[length:20px_20px]"></div>
+                 <div className="relative z-10 text-center">
+                     <h1 className={`text-9xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 ${headingFont}`}>{data.count}</h1>
+                     <p className={`text-white/80 font-bold text-sm uppercase tracking-[0.2em] mt-2 ${uiFont}`}>Active Trainers</p>
+                 </div>
+            </div>
+        );
+        
+    case 'statPTsLoc':
+        return (
+            <div className={`h-full w-full relative flex flex-col justify-between p-8 bg-white border-8`} style={{ borderColor: 'var(--tw-colors-slate-900)' }}>
+                 <div className={`absolute inset-0 border-8 pointer-events-none opacity-10 ${theme.colors.text.replace('text-', 'border-')}`}></div>
+                 
+                <div className="text-right">
+                    <h2 className={`text-slate-900 text-4xl font-black uppercase ${headingFont}`}>{data.locationName}</h2>
+                    <div className={`text-slate-400 text-xs font-bold uppercase tracking-widest ${uiFont}`}>Area Focus</div>
+                </div>
+                <div className="text-left">
+                    <span className={`text-[10rem] font-black leading-none ${theme.colors.text} -ml-2 ${headingFont}`}>{data.count}</span>
+                    <div className={`${theme.colors.bg} text-white inline-block px-3 py-1 text-sm font-bold uppercase transform -translate-y-8 ${uiFont}`}>Trainers</div>
                 </div>
             </div>
-         </div>
-      </div>
-    );
-  }
+        );
 
-  if (template === 'mostReviews') {
-      return (
-          <div className={`h-full w-full ${theme.colors.bg} flex flex-col items-center pt-16 relative overflow-hidden`}>
-              <VibeBackground theme={theme} customImage={data.customBackground} />
-              <div className={`absolute top-0 w-full h-full opacity-20 bg-[radial-gradient(circle_at_50%_0%,white,transparent_70%)]`}></div>
-              <BrandLogo fill="white" />
-              <div className="mt-12 relative z-10 flex flex-col items-center">
-                  <h3 className={`${theme.colors.accent} ${theme.font.heading} font-bold tracking-widest uppercase text-sm mb-8 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm`}>Review Champion</h3>
-                  <div className="relative w-48 h-48">
-                     <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-pink-500 rounded-full animate-pulse opacity-50 blur-xl"></div>
-                     <div className={`relative w-full h-full rounded-full ${theme.colors.secondary} border-4 border-white/10 flex flex-col items-center justify-center shadow-2xl backdrop-blur-sm overflow-hidden`}>
-                        {data.userImage ? (
-                          <img src={data.userImage} alt="User" className="w-full h-full object-cover" />
-                        ) : (
-                          <>
-                            <span className={`${theme.colors.text} text-7xl font-black`}>{data.reviewCount || "50"}</span>
-                            <span className={`${theme.colors.text} text-xs uppercase mt-2 font-bold opacity-70`}>Reviews</span>
-                          </>
+    case 'statUsers':
+        return (
+            <div className={`h-full w-full relative flex flex-col items-center justify-center p-8 ${theme.colors.bg}`}>
+                <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '30px 30px'}}></div>
+                <h2 className={`text-white text-7xl font-black mb-2 relative z-10 ${headingFont}`}>{data.count}</h2>
+                <div className={`bg-white text-slate-900 px-6 py-2 rounded-full font-bold uppercase tracking-widest text-xs relative z-10 ${uiFont}`}>Total Members</div>
+            </div>
+        );
+
+    case 'statUsersLoc':
+        return (
+            <div className="h-full w-full relative flex items-center justify-center bg-slate-50 p-8">
+                 <div className={`border-4 w-full h-full flex flex-col items-center justify-center relative ${theme.colors.text.replace('text-', 'border-')}`}>
+                     <div className={`absolute top-0 ${theme.colors.bg} text-white px-4 py-1 font-bold text-xs uppercase -translate-y-1/2 ${uiFont}`}>{data.locationName}</div>
+                     <h2 className={`${theme.colors.text} text-8xl font-black mb-4 ${headingFont}`}>{data.count}</h2>
+                     <p className={`${theme.colors.text} opacity-60 font-bold text-sm uppercase tracking-wider ${uiFont}`}>Active Clients</p>
+                 </div>
+            </div>
+        );
+
+    case 'conversionStats':
+        return (
+            <div className="h-full w-full relative flex flex-col p-8 bg-slate-50">
+                <h3 className={`text-slate-900 font-bold text-lg mb-8 ${headingFont}`}>Monthly Funnel</h3>
+                
+                <div className="space-y-4 flex-1">
+                    <div className="w-full bg-slate-200 p-4 rounded-lg flex justify-between items-center">
+                        <span className={`text-xs font-bold uppercase text-slate-500 ${uiFont}`}>Enquiries</span>
+                        <span className={`font-bold text-xl ${headingFont}`}>{data.enquiryCount}</span>
+                    </div>
+                    <div className={`w-1/2 ${theme.colors.bg} text-white p-4 rounded-lg flex justify-between items-center mx-auto shadow-lg scale-110`}>
+                        <span className={`text-xs font-bold uppercase text-white/60 ${uiFont}`}>Sign Ups</span>
+                        <span className={`font-bold text-xl ${headingFont}`}>{data.signupCount}</span>
+                    </div>
+                </div>
+                
+                <div className="text-center mt-4">
+                    <p className={`text-slate-400 text-xs font-bold uppercase mb-1 ${uiFont}`}>Conversion Rate</p>
+                    <p className={`${theme.colors.text} text-4xl font-black ${headingFont}`}>{data.percentage}</p>
+                </div>
+            </div>
+        );
+
+    case 'blogPromo':
+        return (
+            <div className="h-full w-full relative flex flex-col justify-end p-10 bg-white">
+                 <div className="absolute top-0 right-0 p-6">
+                    <Type size={32} className="text-slate-300" />
+                 </div>
+                 
+                 <div className="relative z-10">
+                     <div className={`${theme.colors.text} font-bold italic text-xl mb-4 font-serif`}>{data.category}</div>
+                     <h1 className={`text-slate-900 text-5xl font-black leading-[0.9] mb-8 ${headingFont}`}>{data.headline}</h1>
+                     <div className="flex items-center gap-3">
+                         <div className="h-px bg-slate-300 w-12"></div>
+                         <span className={`text-slate-400 text-xs font-bold uppercase tracking-widest ${uiFont}`}>Read Now</span>
+                     </div>
+                 </div>
+            </div>
+        );
+
+    case 'rankPlatform':
+        return (
+            <div className={`h-full w-full relative flex flex-col p-8 ${theme.colors.bg}`}>
+                <h2 className={`text-center text-white font-bold uppercase tracking-widest text-sm mb-12 ${uiFont}`}>Top Categories</h2>
+                
+                <div className="flex items-end justify-center gap-4 flex-1 pb-8">
+                    {/* Rank 2 */}
+                    <div className="w-1/3 flex flex-col items-center">
+                        <div className={`text-white/60 text-xs font-bold mb-2 ${uiFont}`}>#2</div>
+                        <div className="w-full bg-white/10 rounded-t-lg h-24 flex items-end justify-center p-2">
+                             <span className={`text-white text-xs font-bold text-center ${bodyFont}`}>{data.rank2}</span>
+                        </div>
+                    </div>
+                    
+                    {/* Rank 1 */}
+                    <div className="w-1/3 flex flex-col items-center">
+                        <div className="text-yellow-400 mb-2"><Trophy size={20}/></div>
+                        {data.userImage && (
+                            <div className="w-8 h-8 rounded-full border border-white mb-2 overflow-hidden">
+                                <img src={data.userImage} className="w-full h-full object-cover"/>
+                            </div>
                         )}
-                     </div>
-                  </div>
-                  <h2 className={`${theme.colors.text} ${theme.font.heading} text-3xl font-bold mt-10 text-center px-4 drop-shadow-lg`}>{data.ptName || "PT Name"}</h2>
-              </div>
-          </div>
-      );
-  }
-
-  if (template === 'mostReferrals') {
-      return (
-          <div className={`h-full w-full bg-white flex flex-col`}>
-              <div className={`h-2/3 ${theme.colors.bg} rounded-bl-[4rem] p-8 flex flex-col justify-center relative overflow-hidden shadow-lg`}>
-                   <VibeBackground theme={theme} customImage={data.customBackground} />
-                   <PatternOverlay opacity={0.2} />
-                   <Share2 size={120} className="absolute -right-8 -top-8 opacity-10 text-white" />
-                   <div className="relative z-10">
-                        <div className="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white font-bold uppercase mb-4 border border-white/20">Trending</div>
-                        <h2 className={`${theme.colors.text} ${theme.font.heading} text-5xl font-black uppercase mb-2 leading-none drop-shadow-lg`}>Top<br/>Referrer</h2>
-                   </div>
-              </div>
-              <div className="flex-1 p-8 flex items-center justify-between">
-                  <div>
-                      <p className="text-slate-400 text-xs font-bold uppercase mb-1">Trainer</p>
-                      <p className="text-slate-900 font-bold text-xl">{data.ptName || "Name"}</p>
-                  </div>
-                  <div className="text-right">
-                      <p className="text-slate-400 text-xs font-bold uppercase mb-1">Referrals</p>
-                      <p className={`text-5xl font-black ${theme.colors.accent.replace('text-', 'text-')}`.replace('text-white', 'text-slate-900')}>{data.referralCount || "0"}</p>
-                  </div>
-              </div>
-          </div>
-      );
-  }
-
-  // --- BUSINESS ---
-  if (template === 'platformEarnings') {
-    return (
-        <div className={`h-full w-full ${theme.colors.bg} flex flex-col p-8 relative`}>
-            <VibeBackground theme={theme} customImage={data.customBackground} />
-            <div className="flex justify-between items-start mb-12 relative z-10">
-                <BrandLogo fill="white" />
-                <div className={`${theme.colors.secondary} ${theme.colors.text} px-3 py-1 text-xs font-bold rounded shadow-lg backdrop-blur-md`}>{data.period || "Period"}</div>
-            </div>
-            <div className="relative z-10 mt-8">
-                <h3 className={`${theme.colors.text} opacity-80 font-bold uppercase text-xs mb-2 drop-shadow-md`}>Total Earnings</h3>
-                <h2 className={`${theme.colors.text} text-6xl font-black mb-8 tracking-tighter drop-shadow-xl`}>{data.amount || "£0"}</h2>
-            </div>
-            <div className="flex-1 flex items-end gap-3 relative z-10">
-                 {[40, 60, 50, 85].map((h, i) => (
-                     <div key={i} className={`flex-1 rounded-t-lg ${i === 3 ? 'bg-gradient-to-t from-teal-400 to-teal-300' : theme.colors.secondary} backdrop-blur-sm border-t border-white/10`} style={{ height: `${h}%` }}>
-                        {i === 3 && <div className="text-center pt-2 text-teal-900 font-bold text-xs opacity-70">Top</div>}
-                     </div>
-                 ))}
-            </div>
-        </div>
-    );
-  }
-
-  if (template === 'locationEarnings') {
-    return (
-      <div className="h-full w-full bg-white p-8 flex flex-col justify-between border-[1rem] border-slate-50 relative overflow-hidden">
-          {(data.customBackground || theme.backgroundImage) && <div className="absolute inset-0 opacity-10 bg-cover bg-center grayscale" style={{backgroundImage: `url(${data.customBackground || theme.backgroundImage})`}}></div>}
-          <div className="relative z-10">
-             <div className={`w-14 h-14 ${theme.colors.bg} rounded-2xl flex items-center justify-center ${theme.colors.text} mb-6 shadow-xl rotate-3`}>
-                <PoundSterling size={28} />
-             </div>
-             <h2 className={`text-slate-900 ${theme.font.heading} text-4xl font-black uppercase leading-none`}>{data.locationName || "Location"}</h2>
-             <p className="text-slate-400 text-xs uppercase font-bold mt-3 tracking-widest">Highest Revenue Zone</p>
-          </div>
-          <div className="border-t-2 border-slate-100 pt-6 relative z-10">
-              <p className={`text-6xl font-mono text-slate-900 tracking-tighter font-bold`}>{data.amount}</p>
-              <p className={`${theme.colors.bg.replace('bg-', 'text-')} text-xs font-bold mt-2 uppercase`}>Generated this month</p>
-          </div>
-      </div>
-    );
-  }
-
-  // --- EDUCATIONAL ---
-  if (template === 'caseStudy') {
-    return (
-        <div className={`h-full w-full ${theme.colors.secondary} flex flex-col`}>
-            <div className={`h-[45%] ${theme.colors.bg} relative overflow-hidden flex items-center justify-center`}>
-                {data.userImage ? (
-                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.userImage})` }}>
-                    <div className={`absolute inset-0 ${theme.colors.overlay || 'bg-black/50'}`}></div>
-                  </div>
-                ) : (
-                   <VibeBackground theme={theme} customImage={data.customBackground} />
-                )}
-                {!data.userImage && <PatternOverlay />}
-                <h1 className={`${theme.colors.text} ${theme.font.heading} text-5xl font-black uppercase text-center px-4 drop-shadow-xl relative z-10`}>{data.ptName}'s<br/>Results</h1>
-            </div>
-            <div className="h-[55%] bg-white p-8 flex flex-col justify-center relative">
-                <div className={`absolute -top-6 left-8 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-2 font-bold text-xs uppercase tracking-widest shadow-xl transform -skew-x-12`}>
-                    Case Study
-                </div>
-                <p className="text-slate-700 text-xl leading-relaxed font-serif italic mb-6 relative z-10">"{data.result || "Result description goes here."}"</p>
-                <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase border-t pt-4 border-slate-100">
-                    <Clock size={14} /> {data.timeframe || "Duration"}
-                </div>
-            </div>
-        </div>
-    );
-  }
-
-  if (template === 'blogPromo') {
-    return (
-        <div className={`h-full w-full bg-slate-50 p-8 flex flex-col justify-center border-l-[24px] ${theme.colors.bg.replace('bg-', 'border-')} relative overflow-hidden`}>
-             {data.userImage ? (
-                 <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.userImage})` }}>
-                     <div className="absolute inset-0 bg-white/80"></div>
-                 </div>
-             ) : (data.customBackground || theme.backgroundImage) && (
-                <div className="absolute inset-0 opacity-5 bg-cover bg-center" style={{backgroundImage: `url(${data.customBackground || theme.backgroundImage})`}}></div>
-             )}
-            <BrandLogo />
-            <div className="mt-12 relative z-10">
-                <span className={`${theme.colors.bg.replace('bg-', 'text-')} font-serif italic text-2xl mb-4 block`}>{data.category || "Category"}</span>
-                <h1 className={`text-5xl sm:text-6xl font-black text-slate-900 leading-[0.9] mb-8`}>{data.headline || "Headline Goes Here"}</h1>
-                <div className="flex items-center gap-3 group cursor-pointer">
-                   <div className={`h-0.5 w-12 ${theme.colors.bg.replace('bg-', 'bg-')} transition-all group-hover:w-20`}></div>
-                   <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Read Now</span>
-                </div>
-            </div>
-        </div>
-    );
-  }
-
-  // --- COMMUNITY ---
-  if (template === 'monthlyStar') {
-    return (
-        <div className={`h-full w-full bg-gradient-to-b ${theme.colors.gradient} flex flex-col items-center justify-center p-6 text-center relative overflow-hidden`}>
-             {data.userImage ? (
-                 <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.userImage})` }}>
-                     <div className={`absolute inset-0 ${theme.colors.overlay || 'bg-black/60'}`}></div>
-                 </div>
-             ) : (
-                <VibeBackground theme={theme} customImage={data.customBackground} />
-             )}
-            
-            <div className="mb-8 relative z-10">
-                 {data.userImage ? (
-                   <div className="w-48 h-48 rounded-full border-4 border-white shadow-2xl overflow-hidden mx-auto">
-                      <img src={data.userImage} className="w-full h-full object-cover" />
-                   </div>
-                 ) : (
-                    <>
-                        <div className="absolute inset-0 bg-white blur-2xl opacity-40 rounded-full animate-pulse"></div>
-                        <Trophy size={100} className={`${theme.colors.text} relative z-10 drop-shadow-2xl`} />
-                    </>
-                 )}
-            </div>
-            <h3 className={`${theme.colors.accent} font-bold tracking-[0.3em] text-xs uppercase mb-4 relative z-10 bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full`}>Trainer of the Month</h3>
-            <h1 className={`${theme.colors.text} ${theme.font.heading} text-5xl sm:text-6xl font-black mb-8 relative z-10 drop-shadow-xl`}>{data.ptName || "Name"}</h1>
-            <div className={`${theme.colors.secondary} backdrop-blur-xl rounded-2xl p-6 text-sm font-medium leading-relaxed border border-white/20 ${theme.colors.text} shadow-2xl max-w-xs relative z-10`}>
-                "{data.reason || "Outstanding dedication to client success."}"
-            </div>
-        </div>
-    );
-  }
-
-  // --- STATS ---
-  if (template === 'statPTs' || template === 'statUsers') {
-    const isUsers = template === 'statUsers';
-    return (
-        <div className={`h-full w-full ${theme.colors.bg} flex flex-col items-center justify-center relative overflow-hidden`}>
-            <VibeBackground theme={theme} customImage={data.customBackground} />
-            <PatternOverlay opacity={0.15} />
-            <div className={`text-[240px] font-black absolute -right-16 -bottom-24 opacity-10 ${theme.colors.text} select-none`}>
-                {isUsers ? 'USR' : 'PT'}
-            </div>
-            <div className="text-center relative z-10 p-8 border-y border-white/10 w-full backdrop-blur-sm">
-                <div className={`text-8xl font-black ${theme.colors.text} mb-4 tracking-tighter drop-shadow-lg`}>{data.count || "0"}</div>
-                <div className={`${theme.colors.accent} font-bold uppercase tracking-[0.3em] text-sm`}>
-                    Total {isUsers ? 'Users' : 'Trainers'}
-                </div>
-            </div>
-        </div>
-    );
-  }
-
-  if (template === 'statPTsLoc' || template === 'statUsersLoc') {
-    return (
-        <div className={`h-full w-full bg-white flex flex-col`}>
-             <div className="flex-1 flex items-center justify-center p-8 relative overflow-hidden">
-                 {(data.customBackground || theme.backgroundImage) && <div className="absolute inset-0 opacity-20 bg-cover bg-center grayscale" style={{backgroundImage: `url(${data.customBackground || theme.backgroundImage})`}}></div>}
-                 <BrandLogo />
-                 <div className="text-center mt-8 relative z-10">
-                    <h2 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-6 bg-white/50 px-3 py-1 rounded-full">Live in {data.locationName}</h2>
-                    <div className={`text-9xl font-black ${theme.colors.bg.replace('bg-', 'text-')} drop-shadow-2xl`}>{data.count || "0"}</div>
-                 </div>
-             </div>
-             <div className={`h-20 ${theme.colors.bg} flex items-center justify-center relative`}>
-                <VibeBackground theme={theme} customImage={data.customBackground} />
-                <span className={`${theme.colors.text} font-bold uppercase tracking-[0.2em] text-sm relative z-10`}>
-                    {template === 'statPTsLoc' ? 'Active Trainers' : 'Active Users'}
-                </span>
-             </div>
-        </div>
-    );
-  }
-
-  if (template === 'conversionStats') {
-    return (
-        <div className={`h-full w-full ${theme.colors.secondary} flex flex-col p-8 relative overflow-hidden`}>
-            <VibeBackground theme={theme} customImage={data.customBackground} />
-            <h3 className={`${theme.colors.text} font-bold mb-10 uppercase text-xs tracking-widest border-b border-white/10 pb-4 relative z-10`}>This Month's Funnel</h3>
-            <div className="space-y-6 relative z-10">
-                <div className="bg-white/5 p-6 rounded-r-3xl w-full border-l-4 border-white/30 backdrop-blur-sm">
-                    <p className={`text-xs ${theme.colors.text} opacity-80 font-bold uppercase mb-1`}>Enquiries</p>
-                    <p className={`text-3xl font-black ${theme.colors.text}`}>{data.enquiryCount || "0"}</p>
-                </div>
-                <div className={`bg-gradient-to-r from-white/10 to-transparent p-6 rounded-r-3xl w-[75%] border-l-4 ${theme.colors.accent.replace('text-', 'border-')} backdrop-blur-sm shadow-lg`}>
-                    <p className={`text-xs ${theme.colors.accent} font-bold uppercase mb-1`}>Sign Ups</p>
-                    <p className={`text-3xl font-black ${theme.colors.accent}`}>{data.signupCount || "0"}</p>
-                </div>
-            </div>
-            <div className="mt-auto text-center border-t border-white/10 pt-6 relative z-10">
-                <p className={`text-7xl font-black ${theme.colors.text} drop-shadow-lg`}>{data.percentage || "0%"}</p>
-                <p className={`text-xs ${theme.colors.text} opacity-60 font-bold uppercase mt-2 tracking-widest`}>Conversion Rate</p>
-            </div>
-        </div>
-    );
-  }
-
-  // --- RANKING ---
-  if (template === 'rankPlatform') {
-    return (
-        <div className={`h-full w-full ${theme.colors.bg} flex flex-col items-center justify-end pb-12 px-8 text-center relative overflow-hidden`}>
-             <VibeBackground theme={theme} customImage={data.customBackground} />
-             <h2 className={`${theme.colors.text} font-bold text-lg mb-12 absolute top-12 uppercase tracking-widest border-b pb-2 ${theme.colors.text.replace('text-', 'border-')} relative z-10`}>Top Categories</h2>
-             <div className="flex items-end justify-center gap-4 w-full relative z-10">
-                 <div className="w-1/3 bg-white/5 rounded-t-lg h-24 flex flex-col justify-end pb-4 border-t border-white/10 backdrop-blur-sm">
-                    <span className={`${theme.colors.text} text-xs font-bold truncate px-1`}>{data.rank2 || "2nd"}</span>
-                    <span className={`${theme.colors.text} opacity-50 text-[10px] font-bold`}>#2</span>
-                 </div>
-                 <div className={`w-1/3 bg-gradient-to-t ${theme.colors.gradient} rounded-t-lg h-44 flex flex-col justify-end pb-6 relative shadow-[0_0_50px_rgba(0,0,0,0.5)] border-t border-white/30 backdrop-blur-sm`}>
-                    <div className={`absolute -top-6 left-1/2 -translate-x-1/2 bg-white rounded-full p-2 text-black shadow-lg`}>
-                        <Trophy size={20} fill="currentColor"/>
+                        <div className={`w-full bg-gradient-to-b ${theme.colors.gradient} rounded-t-lg h-40 flex items-end justify-center p-2 shadow-lg relative`}>
+                             <div className="absolute -top-3 bg-white text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full">1st</div>
+                             <span className={`text-white text-sm font-bold text-center ${bodyFont}`}>{data.rank1}</span>
+                        </div>
                     </div>
-                    <span className="text-white text-lg font-black truncate px-1">{data.rank1 || "1st"}</span>
-                    <span className="text-white opacity-80 text-xs font-bold">#1</span>
-                 </div>
-                 <div className="w-1/3 bg-white/5 rounded-t-lg h-20 flex flex-col justify-end pb-4 border-t border-white/10 backdrop-blur-sm">
-                    <span className={`${theme.colors.text} text-xs font-bold truncate px-1`}>{data.rank3 || "3rd"}</span>
-                    <span className={`${theme.colors.text} opacity-50 text-[10px] font-bold`}>#3</span>
-                 </div>
-             </div>
-        </div>
-    );
-  }
 
-  if (template === 'rankLocation') {
-    return (
-        <div className="h-full w-full bg-white p-8 border-[1.5rem] border-slate-100 relative">
-             {(data.customBackground || theme.backgroundImage) && <div className="absolute inset-0 opacity-10 bg-cover bg-center grayscale" style={{backgroundImage: `url(${data.customBackground || theme.backgroundImage})`}}></div>}
-            <BrandLogo />
-            <div className="flex items-center gap-3 mb-10 mt-12 relative z-10">
-                <MapPin className={`${theme.colors.bg.replace('bg-', 'text-')}`} size={36} />
-                <div>
-                    <h2 className="font-black text-3xl text-slate-900 leading-none">{data.locationName || "Location"}</h2>
-                    <span className="font-bold text-slate-400 text-xs uppercase tracking-wider">Top 3 Performing</span>
-                </div>
-            </div>
-            <div className="space-y-6 relative z-10">
-                {['rank1', 'rank2', 'rank3'].map((r, i) => (
-                    <div key={r} className="flex items-center gap-6 border-b-2 border-slate-50 pb-4">
-                        <div className={`text-5xl font-black ${theme.colors.bg.replace('bg-', 'text-')} opacity-20 italic`}>0{i+1}</div>
-                        <div className="font-bold text-slate-800 text-xl">{data[r] || `Rank ${i+1}`}</div>
+                    {/* Rank 3 */}
+                    <div className="w-1/3 flex flex-col items-center">
+                        <div className={`text-white/60 text-xs font-bold mb-2 ${uiFont}`}>#3</div>
+                        <div className="w-full bg-white/10 rounded-t-lg h-16 flex items-end justify-center p-2">
+                             <span className={`text-white text-xs font-bold text-center ${bodyFont}`}>{data.rank3}</span>
+                        </div>
                     </div>
-                ))}
-            </div>
-        </div>
-    );
-  }
-
-  if (template === 'bestGyms') {
-    return (
-        <div className={`h-full w-full ${theme.colors.secondary} relative flex items-center justify-center p-8 text-center`}>
-            {data.userImage ? (
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.userImage})` }}>
-                    <div className={`absolute inset-0 ${theme.colors.overlay || 'bg-black/50'}`}></div>
-                </div>
-            ) : (
-                <VibeBackground theme={theme} customImage={data.customBackground} />
-            )}
-            
-            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `linear-gradient(45deg, ${theme.colors.bg.includes('white') ? '#000' : '#fff'} 25%, transparent 25%, transparent 50%, ${theme.colors.bg.includes('white') ? '#000' : '#fff'} 50%, ${theme.colors.bg.includes('white') ? '#000' : '#fff'} 75%, transparent 75%, transparent)`, backgroundSize: '30px 30px' }}></div>
-            <div className={`relative z-10 bg-white p-10 shadow-2xl rotate-2 transform hover:rotate-0 transition-transform duration-300 border-4 border-white`}>
-                <div className="absolute -top-4 -left-4 bg-red-600 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest shadow-md">Editor's Pick</div>
-                <p className="text-slate-400 font-bold tracking-widest text-xs uppercase mb-3">Best Gym in {data.locationName || "Area"}</p>
-                <h1 className={`text-4xl font-black text-slate-900 mb-4 uppercase leading-none`}>{data.gymName || "GYM NAME"}</h1>
-                <div className="flex justify-center mt-2 gap-1">
-                     {[1,2,3,4,5].map(i => <Star key={i} size={18} className="fill-yellow-400 text-yellow-400"/>)}
                 </div>
             </div>
-        </div>
-    );
-  }
+        );
 
-  // --- TECH ---
-  if (template === 'bestApps' || template === 'bestNutrition') {
-     const isNutri = template === 'bestNutrition';
-     const Icon = isNutri ? Activity : Smartphone;
-     
-     return (
-        <div className={`h-full w-full ${isNutri ? 'bg-green-50' : 'bg-indigo-50'} flex flex-col items-center justify-center p-8 relative overflow-hidden`}>
-             {data.userImage ? (
-                 <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${data.userImage})` }}>
-                     <div className="absolute inset-0 bg-white/70"></div>
-                 </div>
-             ) : (data.customBackground || theme.backgroundImage) && (
-                <div className="absolute inset-0 opacity-10 bg-cover bg-center" style={{backgroundImage: `url(${data.customBackground || theme.backgroundImage})`}}></div>
-             )}
-             
-             <div className={`absolute top-0 right-0 w-64 h-64 ${isNutri ? 'bg-green-200' : 'bg-indigo-200'} rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2`}></div>
-             <BrandLogo />
-             <div className={`w-40 h-40 rounded-[2.5rem] ${isNutri ? 'bg-green-500 shadow-green-200' : 'bg-indigo-600 shadow-indigo-200'} flex items-center justify-center text-white mb-10 shadow-2xl rotate-[-6deg] z-10 border-8 border-white`}>
-                <Icon size={80} />
-             </div>
-             <div className="text-center z-10">
-                 <div className={`inline-block px-4 py-1.5 rounded-full ${isNutri ? 'bg-green-100 text-green-700' : 'bg-indigo-100 text-indigo-700'} text-xs font-bold uppercase mb-6 tracking-wide shadow-sm`}>
-                    {isNutri ? 'Nutrition Tool' : 'App of the Month'}
-                 </div>
-                 <h2 className="font-black text-4xl text-slate-900 mb-3 leading-tight">{data.appName || "App Name"}</h2>
-                 <p className="text-slate-500 text-sm font-medium">Best for: {data.benefit || "Key Benefit"}</p>
-             </div>
-        </div>
-     );
-  }
+    case 'rankLocation':
+        return (
+            <div className="h-full w-full relative bg-white p-8">
+                <div className="border-b-2 border-slate-900 pb-4 mb-6">
+                    <h2 className={`text-slate-900 text-2xl font-black uppercase ${headingFont}`}>{data.locationName}</h2>
+                    <p className={`text-slate-500 text-xs font-bold uppercase tracking-widest ${uiFont}`}>Leaderboard</p>
+                </div>
+                
+                <div className="space-y-4">
+                    {['rank1', 'rank2', 'rank3'].map((r, i) => (
+                        <div key={r} className="flex items-center gap-4 group">
+                             <div className={`text-4xl font-black ${theme.colors.text} opacity-50 group-hover:opacity-100 transition-opacity ${headingFont}`}>0{i+1}</div>
+                             {i === 0 && data.userImage && (
+                                <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
+                                    <img src={data.userImage} className="w-full h-full object-cover"/>
+                                </div>
+                             )}
+                             <div className="flex-1">
+                                 <div className={`font-bold text-slate-800 text-lg ${bodyFont}`}>{data[r] || `Rank ${i+1}`}</div>
+                                 <div className="h-0.5 w-full bg-slate-100 mt-2"></div>
+                             </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
 
-  return <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400">Template Not Found</div>;
+    case 'bestGyms':
+        return (
+            <div className="h-full w-full relative flex items-center justify-center p-8 bg-black">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center z-0 opacity-60" 
+                  style={{ backgroundImage: `url(${data.userImage || data.customBackground || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000'})` }}
+                />
+                <div className={`absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-80 z-0`}></div>
+
+                <div className="relative z-10 text-center border-y-2 border-white py-8 w-full">
+                    <div className={`${theme.colors.accent} font-bold uppercase tracking-[0.2em] text-xs mb-2 ${uiFont}`}>Editor's Choice</div>
+                    <h1 className={`text-white text-4xl font-black uppercase mb-2 ${headingFont}`}>{data.gymName}</h1>
+                    <div className={`text-white/80 text-sm font-medium ${bodyFont}`}>Best in {data.locationName}</div>
+                </div>
+            </div>
+        );
+
+    case 'bestApps':
+        return (
+            <div className="h-full w-full relative flex flex-col items-center justify-center p-8 bg-slate-50">
+                 <div className={`w-48 h-full max-h-[300px] ${theme.colors.bg} rounded-[2rem] border-4 ${theme.colors.text.replace('text-', 'border-')} shadow-2xl overflow-hidden relative flex flex-col`}>
+                     <div className={`h-6 w-full flex justify-center items-center bg-black/20`}>
+                         <div className="w-12 h-2 bg-black rounded-full"></div>
+                     </div>
+                     <div className="flex-1 bg-white p-4 flex flex-col items-center justify-center text-center">
+                         {data.userImage ? (
+                             <img src={data.userImage} className="w-16 h-16 rounded-xl mb-4 object-cover shadow-md" />
+                         ) : (
+                             <Smartphone size={40} className="text-slate-800 mb-4" />
+                         )}
+                         <h3 className={`font-bold text-slate-900 text-lg leading-tight mb-1 ${headingFont}`}>{data.appName}</h3>
+                         <p className={`text-slate-500 text-[10px] ${bodyFont}`}>{data.benefit}</p>
+                         <button className={`mt-4 ${theme.colors.bg} text-white text-[10px] font-bold px-3 py-1 rounded-full`}>GET</button>
+                     </div>
+                 </div>
+                 <div className={`mt-6 text-center`}>
+                     <div className={`${theme.colors.text} font-black text-xl uppercase ${headingFont}`}>App of the Month</div>
+                 </div>
+            </div>
+        );
+
+    case 'bestNutrition':
+        return (
+            <div className="h-full w-full relative flex flex-col p-8 bg-slate-50 border-t-[16px]" style={{ borderColor: 'var(--tw-colors-emerald-500)' }}>
+                <div className="flex-1 flex flex-col justify-center">
+                    <div className="w-16 h-16 bg-slate-200 rounded-2xl flex items-center justify-center text-slate-600 mb-6">
+                        <Activity size={32} />
+                    </div>
+                    <h2 className={`${theme.colors.text} text-3xl font-black mb-2 ${headingFont}`}>{data.appName}</h2>
+                    <p className={`text-slate-600 font-bold text-sm mb-6 ${bodyFont}`}>"{data.benefit}"</p>
+                    
+                    <div className="flex gap-2">
+                        <span className={`w-2 h-2 rounded-full ${theme.colors.bg}`}></span>
+                        <span className="w-2 h-2 rounded-full bg-slate-300"></span>
+                        <span className="w-2 h-2 rounded-full bg-slate-200"></span>
+                    </div>
+                </div>
+                <div className={`${theme.colors.text} opacity-40 font-bold text-[10px] uppercase tracking-widest ${uiFont}`}>Nutrition Tech</div>
+            </div>
+        );
+
+    default:
+      return <div className="h-full w-full bg-slate-100 flex items-center justify-center text-slate-400">Template Not Found</div>;
+  }
 };

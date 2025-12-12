@@ -2,12 +2,14 @@ import React from 'react';
 import { ScheduledPost } from '../types';
 import { SocialPost } from './SocialPost';
 import { CONTENT_ANGLES } from '../constants';
+import { Trash2 } from 'lucide-react';
 
 interface GridPreviewProps {
   schedule: ScheduledPost[];
+  onRemove: (id: number) => void;
 }
 
-export const GridPreview: React.FC<GridPreviewProps> = ({ schedule }) => {
+export const GridPreview: React.FC<GridPreviewProps> = ({ schedule, onRemove }) => {
   // We want to show at least 9 slots (3 rows)
   const slots = [...schedule].reverse(); // Show newest first
   const emptySlots = Math.max(0, 9 - slots.length);
@@ -45,19 +47,43 @@ export const GridPreview: React.FC<GridPreviewProps> = ({ schedule }) => {
                 {Array.from({ length: totalSlots }).map((_, i) => {
                     const post = slots[i];
                     return (
-                        <div key={i} className="aspect-square bg-white relative overflow-hidden group cursor-pointer">
+                        <div key={i} className="aspect-square bg-white relative overflow-hidden group cursor-pointer border-[0.5px] border-slate-200">
                             {post ? (
-                                <div className="w-full h-full transform scale-[1] origin-top-left">
-                                     {/* We render the actual post component but scaled down via CSS or container query logic implicitly handled by flex */}
-                                     <div className="w-full h-full pointer-events-none select-none">
-                                        <SocialPost 
-                                            template={CONTENT_ANGLES.find(a => a.id === post.angleId)?.template || 'newProfile'} 
-                                            data={post.data} 
-                                            vibe={post.vibe} 
-                                            type="post" // Grid is always square posts
-                                        />
-                                     </div>
-                                </div>
+                                <>
+                                    <div className="absolute inset-0 w-full h-full overflow-hidden">
+                                         {/* 
+                                            SCALING FIX: 
+                                            The SocialPost component is designed for a ~450px width (Studio Preview).
+                                            The Grid cells here are approx 125px wide.
+                                            Ratio: 450 / 125 ≈ 3.6.
+                                            We render the post at 360% size and scale it down to 0.277 (1/3.6) 
+                                            to ensure fonts and layout elements maintain their proportions.
+                                            Added pointer-events-none to prevent content from capturing clicks intended for delete button.
+                                         */}
+                                         <div className="origin-top-left w-[360%] h-[360%] scale-[0.277] pointer-events-none select-none">
+                                            <SocialPost 
+                                                template={CONTENT_ANGLES.find(a => a.id === post.angleId)?.template || 'newProfile'} 
+                                                data={post.data} 
+                                                vibe={post.vibe} 
+                                                type="post" // Always force square layout for grid
+                                            />
+                                         </div>
+                                    </div>
+
+                                    {/* Delete Overlay */}
+                                    <div className="absolute inset-0 z-50 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm cursor-pointer">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onRemove(post.id);
+                                            }}
+                                            className="bg-white text-red-500 p-2 rounded-full hover:bg-red-50 hover:scale-110 transition-all shadow-lg border border-red-100 pointer-events-auto"
+                                            title="Remove Post"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                </>
                             ) : (
                                 <div className="w-full h-full bg-slate-50 flex items-center justify-center">
                                     <div className="w-8 h-8 rounded-full border-2 border-slate-200"></div>

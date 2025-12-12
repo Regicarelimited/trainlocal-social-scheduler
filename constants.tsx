@@ -3,19 +3,19 @@ import {
   Users, CheckCircle2, MapPin, Star, Share2, PoundSterling, Layout, 
   Award, BarChart2, Type, Trophy, Dumbbell, Smartphone, Activity 
 } from 'lucide-react';
-import { ContentAngle, VibeConfig, Trainer, Asset, PostData } from './types';
+import { ContentAngle, VibeConfig, Trainer, Asset, PostData, ScheduledPost } from './types';
 
 export const VIBES: VibeConfig[] = [
   {
     id: 'classic',
     label: 'TL Classic',
     colors: {
-      bg: 'bg-[#1e1b4b]',
-      text: 'text-white',
-      accent: 'text-teal-400',
-      secondary: 'bg-slate-800',
-      gradient: 'from-[#1e1b4b] to-indigo-900',
-      overlay: 'bg-indigo-950/20'
+      bg: 'bg-[#2E294E]', // Hero Colour
+      text: 'text-[#2E294E]',
+      card: 'bg-white',
+      accent: 'text-pink-500',
+      gradient: 'from-[#ff7f50] to-[#ec4899]',
+      overlay: 'bg-[#2E294E]/90'
     },
     font: {
       heading: 'font-sans',
@@ -23,124 +23,52 @@ export const VIBES: VibeConfig[] = [
     }
   },
   {
-    id: 'industrial',
-    label: 'Industrial Gym',
-    backgroundImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop',
-    assetCategory: 'gym',
-    colors: {
-      bg: 'bg-zinc-900',
-      text: 'text-white',
-      accent: 'text-orange-500',
-      secondary: 'bg-black/60',
-      gradient: 'from-zinc-900 via-transparent to-black',
-      overlay: 'bg-black/70'
-    },
-    font: {
-      heading: 'font-display uppercase tracking-widest',
-      body: 'font-sans'
-    }
-  },
-  {
-    id: 'midnight',
-    label: 'Late Night',
-    backgroundImage: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=1000&auto=format&fit=crop',
-    assetCategory: 'urban',
-    colors: {
-      bg: 'bg-slate-900',
-      text: 'text-purple-100',
-      accent: 'text-purple-400',
-      secondary: 'bg-slate-900/80',
-      gradient: 'from-slate-900/90 to-purple-900/90',
-      overlay: 'bg-slate-900/80'
-    },
-    font: {
-      heading: 'font-mono tracking-tighter',
-      body: 'font-mono'
-    }
-  },
-  {
-    id: 'sunrise',
-    label: 'Morning Grind',
-    backgroundImage: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=1000&auto=format&fit=crop',
-    assetCategory: 'nature',
-    colors: {
-      bg: 'bg-orange-50',
-      text: 'text-slate-900',
-      accent: 'text-orange-600',
-      secondary: 'bg-white/90',
-      gradient: 'from-orange-500/20 to-yellow-500/20',
-      overlay: 'bg-white/85'
-    },
-    font: {
-      heading: 'font-serif italic',
-      body: 'font-sans'
-    }
-  },
-  {
-    id: 'motivation',
-    label: 'Hard Work',
-    backgroundImage: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1000&auto=format&fit=crop',
-    assetCategory: 'gym',
-    colors: {
-      bg: 'bg-red-900',
-      text: 'text-white',
-      accent: 'text-red-500',
-      secondary: 'bg-red-950/80',
-      gradient: 'from-red-900 to-black',
-      overlay: 'bg-red-950/80'
-    },
-    font: {
-      heading: 'font-display uppercase italic',
-      body: 'font-sans'
-    }
-  },
-  {
     id: 'neon',
-    label: 'Neon Glow',
+    label: 'Neon Energy',
+    colors: {
+      bg: 'bg-[#2DB1AE]', // Updated to specific Hero Colour
+      text: 'text-[#0f766e]', // Darker teal for readable text on white
+      card: 'bg-white',
+      accent: 'text-white', // White text on the teal background
+      gradient: 'from-[#2DB1AE] to-[#2dd4bf]',
+      overlay: 'bg-[#2DB1AE]/90'
+    },
+    font: {
+      heading: 'font-sans tracking-tight',
+      body: 'font-sans'
+    }
+  },
+  {
+    id: 'burntOrange',
+    label: 'Burnt Orange',
+    colors: {
+      bg: 'bg-gradient-to-br from-[#F3C257] to-[#FF3366]', // Updated Gradient Hero
+      text: 'text-[#e11d48]', // Dark red/pink for text on white
+      card: 'bg-white',
+      accent: 'text-white',
+      gradient: 'from-[#F3C257] to-[#FF3366]',
+      overlay: 'bg-[#FF3366]/90'
+    },
+    font: {
+      heading: 'font-display uppercase',
+      body: 'font-sans'
+    }
+  },
+  {
+    id: 'realWorld',
+    label: 'Real World',
+    backgroundImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000',
+    assetCategory: 'gym',
     colors: {
       bg: 'bg-black',
-      text: 'text-green-400',
-      accent: 'text-pink-500',
-      secondary: 'bg-slate-900',
-      gradient: 'from-slate-900 to-black',
-      overlay: 'bg-black/10'
+      text: 'text-white',
+      card: 'bg-black/60 backdrop-blur-md border border-white/20',
+      accent: 'text-white',
+      gradient: 'from-white/20 to-white/10',
+      overlay: 'bg-black/60'
     },
     font: {
-      heading: 'font-mono tracking-tighter',
-      body: 'font-mono'
-    }
-  },
-  {
-    id: 'luxury',
-    label: 'Premium',
-    assetCategory: 'luxury',
-    colors: {
-      bg: 'bg-slate-100',
-      text: 'text-slate-900',
-      accent: 'text-amber-600',
-      secondary: 'bg-white',
-      gradient: 'from-slate-100 to-slate-200',
-      overlay: 'bg-white/50'
-    },
-    font: {
-      heading: 'font-serif',
-      body: 'font-sans'
-    }
-  },
-  {
-    id: 'eco',
-    label: 'Wellness',
-    assetCategory: 'nature',
-    colors: {
-      bg: 'bg-emerald-50',
-      text: 'text-emerald-900',
-      accent: 'text-emerald-600',
-      secondary: 'bg-white',
-      gradient: 'from-emerald-50 to-teal-100',
-      overlay: 'bg-emerald-50/50'
-    },
-    font: {
-      heading: 'font-sans tracking-wide',
+      heading: 'font-sans font-black',
       body: 'font-sans'
     }
   }
@@ -153,9 +81,9 @@ export const CONTENT_ANGLES: ContentAngle[] = [
   { id: 3, label: "New Location Added", category: "Growth", icon: <MapPin />, fields: ['locationName', 'gymCount'], template: 'newLocation', defaultHashtags: '#expansion #newlocation #gymsnearme' },
   
   // 4-6 Social Proof
-  { id: 4, label: "New 5-Star Review", category: "Social Proof", icon: <Star />, fields: ['ptName', 'reviewText'], template: 'newReview', defaultHashtags: '#clientresults #5stars #happyclient #fitnessjourney' },
-  { id: 5, label: "Most Reviews (Month)", category: "Social Proof", icon: <Star />, fields: ['ptName', 'reviewCount'], template: 'mostReviews', defaultHashtags: '#toprated #communityfavorite #trustedcoach' },
-  { id: 6, label: "Most Referrals", category: "Social Proof", icon: <Share2 />, fields: ['ptName', 'referralCount'], template: 'mostReferrals', defaultHashtags: '#referrals #communitygrowth #fitnessfamily' },
+  { id: 4, label: "New 5-Star Review", category: "Social Proof", icon: <Star />, fields: ['ptName', 'reviewText'], template: 'newReview', requiresImage: true, defaultHashtags: '#clientresults #5stars #happyclient #fitnessjourney' },
+  { id: 5, label: "Most Reviews (Month)", category: "Social Proof", icon: <Star />, fields: ['ptName', 'reviewCount'], template: 'mostReviews', requiresImage: true, defaultHashtags: '#toprated #communityfavorite #trustedcoach' },
+  { id: 6, label: "Most Referrals", category: "Social Proof", icon: <Share2 />, fields: ['ptName', 'referralCount'], template: 'mostReferrals', requiresImage: true, defaultHashtags: '#referrals #communitygrowth #fitnessfamily' },
   
   // 7-8 Business
   { id: 7, label: "Platform Earnings", category: "Business", icon: <PoundSterling />, fields: ['amount', 'period'], template: 'platformEarnings', defaultHashtags: '#businessgrowth #fitpro #earningpotential' },
@@ -178,12 +106,12 @@ export const CONTENT_ANGLES: ContentAngle[] = [
   { id: 16, label: "Specialism Spotlight", category: "Educational", icon: <Type />, fields: ['headline', 'category'], template: 'blogPromo', requiresImage: true, defaultHashtags: '#fitnesstips #specialist #expertadvice' },
   
   // 17-19 Ranking
-  { id: 17, label: "Platform Ranks", category: "Ranking", icon: <Trophy />, fields: ['rank1', 'rank2', 'rank3'], template: 'rankPlatform', defaultHashtags: '#leaderboard #topcategories #fitnessgoals' },
-  { id: 18, label: "Location Ranks", category: "Ranking", icon: <Trophy />, fields: ['locationName', 'rank1', 'rank2', 'rank3'], template: 'rankLocation', defaultHashtags: '#localtrends #fitnessranking' },
+  { id: 17, label: "Platform Ranks", category: "Ranking", icon: <Trophy />, fields: ['rank1', 'rank2', 'rank3'], template: 'rankPlatform', requiresImage: true, defaultHashtags: '#leaderboard #topcategories #fitnessgoals' },
+  { id: 18, label: "Location Ranks", category: "Ranking", icon: <Trophy />, fields: ['locationName', 'rank1', 'rank2', 'rank3'], template: 'rankLocation', requiresImage: true, defaultHashtags: '#localtrends #fitnessranking' },
   { id: 19, label: "Best Gyms in Area", category: "Ranking", icon: <Dumbbell />, fields: ['locationName', 'gymName'], template: 'bestGyms', requiresImage: true, defaultHashtags: '#bestgym #gymrecommendation #localgyms' },
   
   // 20-21 Tech
-  { id: 20, label: "App of the Month", category: "Tech", icon: <Smartphone />, fields: ['appName', 'benefit'], template: 'bestApps', defaultHashtags: '#fitnessapp #techtools #workoutapp' },
+  { id: 20, label: "App of the Month", category: "Tech", icon: <Smartphone />, fields: ['appName', 'benefit'], template: 'bestApps', requiresImage: true, defaultHashtags: '#fitnessapp #techtools #workoutapp' },
   { id: 21, label: "Nutrition Tool", category: "Tech", icon: <Activity />, fields: ['appName', 'benefit'], template: 'bestNutrition', defaultHashtags: '#nutritiontracking #dietapp #healthtech' },
 ];
 
@@ -205,7 +133,6 @@ export const BACKGROUND_ASSETS: Asset[] = [
   // Nature / Eco / Sunrise
   { id: 'n1', url: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=1000', category: 'nature', tags: ['sunny', 'run'] },
   { id: 'n2', url: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?q=80&w=1000', category: 'nature', tags: ['mountains', 'hike'] },
-  { id: 'n3', url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1000', category: 'nature', tags: ['yoga', 'sunset'] },
   
   // Urban / Midnight / Neon
   { id: 'u1', url: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=1000', category: 'urban', tags: ['street', 'dark'] },
@@ -218,26 +145,38 @@ export const BACKGROUND_ASSETS: Asset[] = [
 ];
 
 export const AIRTABLE_MOCK_RECORDS: Record<string, PostData> = {
-  // Mock data that would come from a "Trainer of the Month" view
-  'monthlyStar': {
-    ptName: "Marcus Cole",
-    reason: "Consistent 5-star feedback and 100% client retention rate for Q3.",
-    userImage: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=300&auto=format&fit=crop"
-  },
-  // Mock data from "Recent Reviews" view
-  'newReview': {
-    ptName: "Lynda Nash",
-    reviewText: "Lynda helped me recover from my injury and I'm now stronger than ever!",
-    userImage: "https://randomuser.me/api/portraits/women/44.jpg"
-  },
-  // Mock data from "Revenue" view
-  'platformEarnings': {
-    amount: "£12,450",
-    period: "October 2023"
-  },
-   // Mock data from "Gyms" view
-  'bestGyms': {
-    gymName: "Ironworks HQ",
-    locationName: "Hastings"
-  }
+  'monthlyStar': { ptName: "Marcus Cole", reason: "Consistent 5-star feedback.", userImage: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=300&auto=format&fit=crop" },
+  'newReview': { ptName: "Lynda Nash", reviewText: "I'm now stronger than ever!", userImage: "https://images.unsplash.com/photo-1544367563-121955b2fa13?q=80&w=300&auto=format&fit=crop" },
+  'platformEarnings': { amount: "£12,450", period: "October 2023" },
+  'bestGyms': { gymName: "Ironworks HQ", locationName: "Hastings" }
 };
+
+// Generate today's date in YYYY-MM-DD
+const today = new Date().toISOString().split('T')[0];
+
+export const SANDBOX_SCHEDULE: ScheduledPost[] = [
+  {
+    id: 101, date: today, angleId: 1, vibe: 'classic', type: 'post',
+    data: { ptName: 'Sarah Jenkins', location: 'Eastbourne', specialism: 'Yoga', userImage: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=300&auto=format&fit=crop' }
+  },
+  {
+    id: 102, date: today, angleId: 7, vibe: 'neon', type: 'story',
+    data: { amount: '£14,500', period: 'Nov 2023' }
+  },
+  {
+    id: 103, date: today, angleId: 10, vibe: 'realWorld', type: 'post',
+    data: { ptName: 'Tom Hardy', reason: 'Launch of new CrossFit Zone', userImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=300&auto=format&fit=crop' }
+  },
+  {
+    id: 104, date: today, angleId: 4, vibe: 'burntOrange', type: 'post',
+    data: { ptName: 'Jack Miller', reviewText: "Best session I've had in years.", userImage: 'https://randomuser.me/api/portraits/men/32.jpg' }
+  },
+  {
+    id: 105, date: today, angleId: 21, vibe: 'classic', type: 'post',
+    data: { appName: 'MyFitnessPal', benefit: 'Macro Tracking', userImage: 'https://images.unsplash.com/photo-1512428813830-c05924713fe4?q=80&w=1000&auto=format&fit=crop' }
+  },
+  {
+    id: 106, date: today, angleId: 9, vibe: 'realWorld', type: 'story',
+    data: { ptName: 'Lynda Nash', result: 'Rehabilitated shoulder in 6 weeks.', timeframe: '6 Weeks', userImage: 'https://images.unsplash.com/photo-1544367563-121955b2fa13?q=80&w=300&auto=format&fit=crop' }
+  }
+];

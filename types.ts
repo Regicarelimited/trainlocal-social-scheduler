@@ -1,24 +1,24 @@
 import { ReactNode } from "react";
 
-export type VibeType = 'classic' | 'industrial' | 'sunrise' | 'midnight' | 'motivation' | 'luxury' | 'eco' | 'neon';
+export type VibeType = 'classic' | 'neon' | 'burntOrange' | 'realWorld';
 
 export interface VibeConfig {
   id: VibeType;
   label: string;
   backgroundImage?: string;
   colors: {
-    bg: string;
-    text: string;
-    accent: string;
-    secondary: string;
-    gradient: string;
-    overlay?: string; // Tailwind class for overlay opacity e.g., 'bg-black/80'
+    bg: string; // The main background of the post
+    text: string; // Main text color
+    card: string; // Background for cards (usually white or dark)
+    accent: string; // Text accent color
+    gradient: string; // Gradient class for buttons/borders
+    overlay?: string; // Overlay for image backgrounds
   };
   font: {
     heading: string;
     body: string;
   };
-  assetCategory?: string; // Links vibe to asset category
+  assetCategory?: string;
 }
 
 export interface ContentAngle {
@@ -59,4 +59,16 @@ export interface Asset {
   url: string;
   category: 'gym' | 'nature' | 'urban' | 'abstract' | 'luxury';
   tags: string[];
+}
+
+export type CanvasElement = {
+  id: string;
+  type: 'text';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  content: string;
+  fontSize?: number;
+  color?: string;
 }

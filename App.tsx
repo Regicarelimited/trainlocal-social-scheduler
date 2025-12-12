@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Calendar as CalendarIcon, Plus, Layout, Zap, CalendarDays, Hash, Check, 
-  Settings, Image as ImageIcon, Users, LogOut, Download, ChevronRight, Menu,
-  ChevronLeft, Upload, Library, RefreshCw, Search, Shuffle, Database, Grid
+  Calendar as CalendarIcon, Plus, Layout, Hash, Check, 
+  Settings, Image as ImageIcon, LogOut, Download, ChevronRight,
+  ChevronLeft, Upload, Library, RefreshCw, Search, Shuffle, Database,
+  X, Trash2, Users, Type as TypeIcon, Layers
 } from 'lucide-react';
-import { CONTENT_ANGLES, VIBES, MOCK_TRAINERS, BACKGROUND_ASSETS, AIRTABLE_MOCK_RECORDS } from './constants';
+import { CONTENT_ANGLES, VIBES, MOCK_TRAINERS, BACKGROUND_ASSETS, AIRTABLE_MOCK_RECORDS, SANDBOX_SCHEDULE } from './constants';
 import { SocialPost } from './components/SocialPost';
 import { GridPreview } from './components/GridPreview';
-import { PostData, ScheduledPost, VibeType, Trainer, Asset } from './types';
+import { EditableCanvas } from './components/EditableCanvas';
+import { PostData, ScheduledPost, VibeType, Trainer, CanvasElement } from './types';
 
 // --- Helper Functions for Calendar ---
 
@@ -17,6 +19,31 @@ const getDaysInMonth = (year: number, month: number) => {
 
 const getFirstDayOfMonth = (year: number, month: number) => {
   return new Date(year, month, 1).getDay();
+};
+
+// --- Demo Data Map ---
+const DEMO_DATA_BY_ID: Record<number, PostData> = {
+  1: { ptName: "Sarah Jenkins", location: "Eastbourne", specialism: "Yoga & Pilates", userImage: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=300&auto=format&fit=crop" },
+  2: { ptName: "Marcus Cole", location: "Brighton" },
+  3: { locationName: "Manchester", gymCount: "12" },
+  4: { ptName: "Lynda Nash", reviewText: "I've never felt stronger. Lynda's patience and expertise are unmatched!", userImage: "https://images.unsplash.com/photo-1544367563-121955b2fa13?q=80&w=300&auto=format&fit=crop" },
+  5: { ptName: "Tom Hardy", reviewCount: "42", userImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=300&auto=format&fit=crop" },
+  6: { ptName: "Jack Miller", referralCount: "18" },
+  7: { amount: "£14,250", period: "November 2023" },
+  8: { locationName: "London Central", amount: "£45k" },
+  9: { ptName: "Sarah", result: "Lost 15kg and completed first marathon.", timeframe: "6 Months", userImage: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=300&auto=format&fit=crop" },
+  10: { ptName: "Marcus Cole", reason: "Outstanding client retention and consistent 5-star reviews.", userImage: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=300&auto=format&fit=crop" },
+  11: { count: "142" },
+  12: { locationName: "Brighton", count: "34" },
+  13: { count: "1,250" },
+  14: { locationName: "Hastings", count: "450" },
+  15: { enquiryCount: "120", signupCount: "45", percentage: "37.5%" },
+  16: { headline: "Why Rest Days Are Crucial", category: "Recovery" },
+  17: { rank1: "Weight Loss", rank2: "Muscle Gain", rank3: "Cardio" },
+  18: { locationName: "Hastings", rank1: "Lynda Nash", rank2: "Jack Miller", rank3: "Tom Hardy" },
+  19: { gymName: "Metroflex Gym", locationName: "Eastbourne", userImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000" },
+  20: { appName: "Strava", benefit: "Community Challenges", userImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=300&auto=format&fit=crop" }, 
+  21: { appName: "MyFitnessPal", benefit: "Macro Tracking" }
 };
 
 // --- Components ---
@@ -66,7 +93,7 @@ const Logo = () => (
 
 // --- Calendar View Component ---
 
-const CalendarView = ({ schedule, onNewClick }: { schedule: ScheduledPost[], onNewClick: () => void }) => {
+const CalendarView = ({ schedule, onNewClick, onRemove }: { schedule: ScheduledPost[], onNewClick: () => void, onRemove: (id: number) => void }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const year = currentDate.getFullYear();
@@ -100,9 +127,21 @@ const CalendarView = ({ schedule, onNewClick }: { schedule: ScheduledPost[], onN
         
         <div className="mt-2 flex flex-col gap-1">
             {postsForDay.map(post => (
-              <div key={post.id} className={`px-2 py-1 rounded text-[10px] font-bold truncate shadow-sm flex items-center gap-1 ${post.type === 'story' ? 'bg-pink-50 text-pink-600 border border-pink-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
-                 <div className={`w-1.5 h-1.5 rounded-full ${post.type === 'story' ? 'bg-pink-500' : 'bg-indigo-500'}`}></div>
-                 {CONTENT_ANGLES.find(a => a.id === post.angleId)?.category || 'Post'}
+              <div key={post.id} className={`pl-2 pr-1 py-1 rounded text-[10px] font-bold truncate shadow-sm flex items-center justify-between gap-1 group/post ${post.type === 'story' ? 'bg-pink-50 text-pink-600 border border-pink-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
+                 <div className="flex items-center gap-1 overflow-hidden">
+                    <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${post.type === 'story' ? 'bg-pink-500' : 'bg-indigo-500'}`}></div>
+                    <span className="truncate">{CONTENT_ANGLES.find(a => a.id === post.angleId)?.category || 'Post'}</span>
+                 </div>
+                 <button 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onRemove(post.id);
+                    }}
+                    className="p-0.5 rounded-sm hover:bg-black/5 opacity-0 group-hover/post:opacity-100 transition-opacity"
+                    title="Remove"
+                 >
+                     <X size={10} />
+                 </button>
               </div>
             ))}
         </div>
@@ -242,27 +281,45 @@ const LibraryView = ({ trainers, onSync }: { trainers: Trainer[], onSync: () => 
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'studio' | 'calendar' | 'grid' | 'library'>('studio'); 
-  const [schedule, setSchedule] = useState<ScheduledPost[]>([]);
-  const [trainers, setTrainers] = useState<Trainer[]>([]); // Simulate empty initially
+  const [schedule, setSchedule] = useState<ScheduledPost[]>(SANDBOX_SCHEDULE);
+  const [trainers, setTrainers] = useState<Trainer[]>(MOCK_TRAINERS);
   
-  // Creator Studio State
   const [selectedAngleId, setSelectedAngleId] = useState(1);
   const [selectedVibe, setSelectedVibe] = useState<VibeType>('classic');
   const [draftData, setDraftData] = useState<PostData>({});
   const [hashtags, setHashtags] = useState("");
   const [draftFormat, setDraftFormat] = useState<'post' | 'story'>('post');
   const [targetDate, setTargetDate] = useState(new Date().toISOString().split('T')[0]);
-  const [showSavedToast, setShowSavedToast] = useState(false);
+  
+  // Canvas Elements State
+  const [canvasElements, setCanvasElements] = useState<CanvasElement[]>([]);
+
+  // Toast State
+  const [toast, setToast] = useState<{show: boolean, message: string, type: 'success' | 'info'}>({
+    show: false, message: '', type: 'success'
+  });
+  
   const [isFetchingAirtable, setIsFetchingAirtable] = useState(false);
 
   const currentAngle = CONTENT_ANGLES.find(a => a.id === selectedAngleId) || CONTENT_ANGLES[0];
   const currentVibeConfig = VIBES.find(v => v.id === selectedVibe);
   const BASE_HASHTAGS = "#trainlocal #findapersonaltrainer";
 
-  // Update hashtags when post type changes
+  const showToast = (message: string, type: 'success' | 'info' = 'success') => {
+      setToast({ show: true, message, type });
+      setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+  };
+
   useEffect(() => {
     const specificTags = currentAngle.defaultHashtags || "";
     setHashtags(`${BASE_HASHTAGS} ${specificTags}`);
+    
+    const demo = DEMO_DATA_BY_ID[selectedAngleId];
+    if (demo) {
+      setDraftData(demo);
+    } else {
+      setDraftData({});
+    }
   }, [selectedAngleId]);
 
   const handleAddToSchedule = () => {
@@ -273,17 +330,23 @@ export default function App() {
       vibe: selectedVibe,
       type: draftFormat,
       data: { ...draftData, hashtags },
+      // Note: We aren't saving canvas elements to the schedule yet as per requirement "not a full design tool",
+      // but if we needed to, we'd add it here.
     };
     setSchedule(prev => [...prev, newPost]);
     
-    // Clear data but reset hashtags
-    setDraftData({});
     const specificTags = currentAngle.defaultHashtags || "";
     setHashtags(`${BASE_HASHTAGS} ${specificTags}`);
+    setDraftData(DEMO_DATA_BY_ID[selectedAngleId] || {});
+    setCanvasElements([]); // Clear canvas on save
     
-    // Show confirmation
-    setShowSavedToast(true);
-    setTimeout(() => setShowSavedToast(false), 2500);
+    showToast("Added to Content Planner", 'success');
+  };
+
+  const handleRemovePost = (id: number) => {
+    // Removed window.confirm to prevent browser blocking and improve UX responsiveness
+    setSchedule(prev => prev.filter(p => p.id !== id));
+    showToast("Post Removed", 'info');
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -324,8 +387,6 @@ export default function App() {
 
   const handleFetchFromAirtable = () => {
       setIsFetchingAirtable(true);
-      
-      // Simulate API call to Airtable base matching the template type
       setTimeout(() => {
           const mockData = AIRTABLE_MOCK_RECORDS[currentAngle.template];
           if (mockData) {
@@ -336,31 +397,57 @@ export default function App() {
   };
 
   const syncTrainers = () => {
-     // Simulate API call delay
      setTimeout(() => {
         setTrainers(MOCK_TRAINERS);
      }, 500);
   };
 
   const handleAutoFill = () => {
-    const base = { ptName: "Jack Miller", location: "Hastings", specialism: "Weight Loss" };
-    const randomNum = Math.floor(Math.random() * 500);
-    
-    if (currentAngle.template.includes('rank')) {
-       setDraftData({ ...base, rank1: "Strength", rank2: "Cardio", rank3: "HIIT", locationName: "St Leonards" });
-    } else if (currentAngle.template.includes('Earnings')) {
-       setDraftData({ ...base, amount: "£2,450", period: "Oct 23", locationName: "Hastings" });
-    } else if (currentAngle.template.includes('stat')) {
-       setDraftData({ ...base, count: `${randomNum}`, locationName: "Brighton", enquiryCount: "100", signupCount: "45", percentage: "45%" });
-    } else {
-       setDraftData({ ...base, reviewText: "Absolutely life changing results!", stars: "5", headline: "5 Ways to Recover", appName: "MyFitnessPal", benefit: "Calorie Tracking", gymName: "Gold's Gym" });
-    }
+    setDraftData(DEMO_DATA_BY_ID[selectedAngleId] || {});
+    setCanvasElements([]);
+  };
+
+  // Canvas Handlers
+  const handleAddTextLayer = () => {
+    const newElement: CanvasElement = {
+      id: Date.now().toString(),
+      type: 'text',
+      x: 50,
+      y: 50,
+      width: 200,
+      height: 60,
+      content: 'Double Click to Edit',
+      fontSize: 24,
+      color: 'white'
+    };
+    setCanvasElements(prev => [...prev, newElement]);
+  };
+
+  const handleRemoveCanvasElement = (id: string) => {
+    setCanvasElements(prev => prev.filter(el => el.id !== id));
+  };
+
+  const handleConvertCaptionToCanvas = () => {
+      if (draftData.headline || draftData.ptName) {
+          const newElement: CanvasElement = {
+              id: Date.now().toString(),
+              type: 'text',
+              x: 40,
+              y: 200,
+              width: 300,
+              height: 100,
+              content: draftData.headline || draftData.ptName || "Headline",
+              fontSize: 32,
+              color: 'white'
+          };
+          setCanvasElements(prev => [...prev, newElement]);
+      }
   };
 
   return (
     <div className="flex h-screen bg-[#f1f5f9] font-sans text-slate-800 overflow-hidden">
       
-      {/* Sidebar - Internal Tool Style (Dark, utilitarian) */}
+      {/* Sidebar */}
       <div className="w-16 lg:w-60 bg-[#0f172a] text-white flex flex-col shrink-0 z-30 shadow-2xl border-r border-slate-900">
         <div className="h-16 flex items-center px-3 lg:px-4 border-b border-slate-800">
            <Logo />
@@ -389,7 +476,7 @@ export default function App() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
         
-        {/* Top Navigation Bar - Utility Focused */}
+        {/* Header */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-20">
           <div className="flex items-center gap-2 text-sm text-slate-500">
              <span className="font-medium hover:text-slate-800 cursor-pointer">Dashboard</span>
@@ -400,16 +487,16 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-3">
-             {showSavedToast && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-md border border-emerald-200 text-xs font-bold animate-fade-in">
-                    <Check size={14} /> Saved to Planner
+             {toast.show && (
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border text-xs font-bold animate-fade-in ${toast.type === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>
+                    {toast.type === 'success' ? <Check size={14} /> : <Trash2 size={14} />} {toast.message}
                 </div>
              )}
              
              {activeTab === 'studio' && (
                <>
                  <button onClick={handleAutoFill} className="px-3 py-1.5 rounded-md border border-slate-200 hover:bg-slate-50 text-xs text-slate-500 font-medium transition-colors">
-                    Debug: Auto-Fill
+                    Reset Data
                  </button>
                  <button className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-md flex items-center gap-2 transition-colors">
                     <Download size={14} /> Export PNG
@@ -424,7 +511,7 @@ export default function App() {
           {activeTab === 'studio' && (
             <div className="h-full flex flex-col md:flex-row">
                 
-                {/* Configuration Panel - Density Increased for Admin feel */}
+                {/* Config Panel */}
                 <div className="w-full md:w-[400px] bg-white border-r border-slate-200 h-full flex flex-col overflow-y-auto no-scrollbar shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10">
                     <div className="p-5 border-b border-slate-100 bg-slate-50/50">
                         <h2 className="text-sm font-bold text-slate-800 mb-1">Configuration</h2>
@@ -453,7 +540,6 @@ export default function App() {
                            value={selectedAngleId} 
                            onChange={(e) => {
                              setSelectedAngleId(parseInt(e.target.value));
-                             setDraftData({}); 
                            }}
                            className="w-full p-2.5 bg-white border border-slate-200 rounded-md text-sm font-medium focus:ring-1 focus:ring-slate-800 focus:border-slate-800 outline-none transition-colors"
                         >
@@ -473,7 +559,7 @@ export default function App() {
                                  </button>
                              )}
                         </div>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                             {VIBES.map(v => (
                                 <button
                                     key={v.id}
@@ -580,29 +666,58 @@ export default function App() {
 
                 {/* Workspace / Canvas Area */}
                 <div className="flex-1 bg-[#e2e8f0] flex items-center justify-center p-8 overflow-hidden relative">
-                    {/* Checkerboard pattern for transparency indication */}
                     <div className="absolute inset-0 opacity-[0.4]" style={{ 
-                        backgroundImage: 'linear-gradient(45deg, #cbd5e1 25%, transparent 25%, transparent 75%, #cbd5e1 75%, #cbd5e1), linear-gradient(45deg, #cbd5e1 25%, transparent 25%, transparent 75%, #cbd5e1 75%, #cbd5e1)', 
+                        backgroundImage: 'linear-gradient(45deg, #cbd5e1 25%, transparent 25%, transparent 75%, #cbd5e1 75%, #cbd5e1)', 
                         backgroundPosition: '0 0, 10px 10px', 
                         backgroundSize: '20px 20px' 
                     }}></div>
                     
                     <div className="flex flex-col items-center gap-4 z-10 w-full max-w-lg">
-                         <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded text-[10px] font-bold text-white shadow-lg">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 
-                            CANVAS PREVIEW: {draftFormat === 'story' ? '1080x1920 (9:16)' : '1080x1080 (1:1)'}
-                         </div>
+                        {/* Canvas Controls */}
+                        <div className="w-full flex items-center justify-between">
+                             <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded text-[10px] font-bold text-white shadow-lg">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 
+                                PREVIEW: {draftFormat === 'story' ? '9:16' : '1:1'}
+                             </div>
+                             
+                             <div className="flex items-center gap-2">
+                                {(draftData.headline || draftData.ptName) && (
+                                    <button 
+                                        onClick={handleConvertCaptionToCanvas}
+                                        className="bg-white hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-md text-[10px] font-bold flex items-center gap-1.5 shadow-md border border-slate-200 transition-colors"
+                                        title="Convert caption to editable text"
+                                    >
+                                        <Layers size={12} /> Use Caption
+                                    </button>
+                                )}
+                                <button 
+                                    onClick={handleAddTextLayer}
+                                    className="bg-slate-900 hover:bg-black text-white px-3 py-1.5 rounded-md text-[10px] font-bold flex items-center gap-1.5 shadow-lg transition-colors"
+                                >
+                                    <TypeIcon size={12} /> Add Text
+                                </button>
+                             </div>
+                        </div>
 
-                         {/* Rendering Frame */}
                         <div 
                            className={`transition-all duration-300 ease-out shadow-2xl overflow-hidden border border-slate-300 bg-white relative ${draftFormat === 'story' ? 'w-[360px] h-[640px]' : 'w-[450px] h-[450px]'}`}
                         >
                             <div className="h-full w-full bg-white relative overflow-hidden">
+                               {/* Background Layer: The generated post */}
                                <SocialPost 
                                    template={currentAngle.template} 
                                    data={draftData} 
                                    vibe={selectedVibe}
                                    type={draftFormat}
+                               />
+                               
+                               {/* Foreground Layer: Interactive Canvas */}
+                               <EditableCanvas 
+                                   elements={canvasElements}
+                                   setElements={setCanvasElements}
+                                   containerWidth={draftFormat === 'story' ? 360 : 450}
+                                   containerHeight={draftFormat === 'story' ? 640 : 450}
+                                   onRemove={handleRemoveCanvasElement}
                                />
                             </div>
                         </div>
@@ -613,12 +728,12 @@ export default function App() {
 
           {activeTab === 'grid' && (
              <div className="h-full overflow-y-auto bg-slate-50">
-                <GridPreview schedule={schedule} />
+                <GridPreview schedule={schedule} onRemove={handleRemovePost} />
              </div>
           )}
 
           {activeTab === 'calendar' && (
-             <CalendarView schedule={schedule} onNewClick={() => setActiveTab('studio')} />
+             <CalendarView schedule={schedule} onNewClick={() => setActiveTab('studio')} onRemove={handleRemovePost} />
           )}
 
           {activeTab === 'library' && (
